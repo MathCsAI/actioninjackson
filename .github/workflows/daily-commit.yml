@@ -22,7 +22,6 @@ jobs:
         # Fetch full history to allow for rebase
         with:
           fetch-depth: 0 
-          # Explicitly check out the main branch
           ref: main 
 
       - name: Configure Git User
@@ -35,11 +34,19 @@ jobs:
           # 1. Create the empty commit locally
           git commit --allow-empty -m "Bot: Daily activity log commit"
           
-          # 2. Fetch the absolute latest changes from the 'main' branch
-          git fetch origin main
-          
-          # 3. Rebase our local commit on top of the latest 'main'
-          git rebase origin/main
-          
-          # 4. Push our rebased commit back to the 'main' branch
-          git push origin main
+          # 2. Start a retry loop (up to 5 attempts)
+          for i in {1..5}
+          do
+            echo "Attempt $i to push..."
+            
+            # 3. Pull latest changes and rebase our commit on top
+            # --no-edit prevents rebase from stopping for commit msg edit
+            git pull --rebase --no-edit
+            
+            # 4. Try to push. If it succeeds (&&), break the loop.
+            git push && echo "Push successful on attempt $i" && break
+            
+            # 5. If push failed, wait 2 seconds and retry
+            echo "Push failed on attempt $i. Retrying in 2 seconds..."
+            sleep 2
+          done
