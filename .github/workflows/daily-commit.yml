@@ -1,52 +1,27 @@
-name: Daily Activity Commit
+name: Daily Commit - 23f2003858@ds.study.iitm.ac.in
 
 on:
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
   schedule:
-    # Runs at 05:30 UTC every day
-    - cron: '30 5 * * *'
+    # Runs every day at 07:30 UTC (you can change this time if needed)
+    - cron: '30 7 * * *'
+  workflow_dispatch:  # Allows manual trigger for testing
 
 jobs:
-  auto-commit:
+  daily-update:
     runs-on: ubuntu-latest
-    
-    # Grants the workflow permission to push commits
-    permissions:
-      contents: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        # Fetch full history to allow for rebase
-        with:
-          fetch-depth: 0 
-          ref: main 
 
-      - name: Configure Git User
+      - name: Update status file (23f2003858@ds.study.iitm.ac.in)
         run: |
-          git config --global user.name 'DevSync Activity Bot'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-      - name: 'Create daily empty commit (Owner: 23f2003858@ds.study.iitm.ac.in)'
+          echo "Last updated on $(date -u)" > last_update.txt
+
+      - name: Commit and push changes
         run: |
-          # 1. Create the empty commit locally
-          git commit --allow-empty -m "Bot: Daily activity log commit"
-          
-          # 2. Start a retry loop (up to 5 attempts)
-          for i in {1..5}
-          do
-            echo "Attempt $i to push..."
-            
-            # 3. Pull latest changes and rebase our commit on top
-            # --no-edit prevents rebase from stopping for commit msg edit
-            git pull --rebase --no-edit
-            
-            # 4. Try to push. If it succeeds (&&), break the loop.
-            git push && echo "Push successful on attempt $i" && break
-            
-            # 5. If push failed, wait 2 seconds and retry
-            echo "Push failed on attempt $i. Retrying in 2 seconds..."
-            sleep 2
-          done
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add last_update.txt
+          git commit -m "Automated daily commit - $(date -u)" || echo "No changes to commit"
+          git push
