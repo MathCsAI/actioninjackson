@@ -6,26 +6,27 @@ on:
 
   schedule:
     # Runs at 05:30 UTC every day
-    # This is a specific time, as required (no wildcards).
     - cron: '30 5 * * *'
 
 jobs:
   auto-commit:
     runs-on: ubuntu-latest
     
+    # --- ADD THIS PERMISSIONS BLOCK ---
+    # This grants the workflow permission to push commits
+    # to your repository's contents.
+    permissions:
+      contents: write
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        # We need to check out the code to be able to commit and push
-        # GITHUB_TOKEN is automatically provided by GitHub
-        # and has write permissions to the repo.
 
       - name: Configure Git User
         run: |
           git config --global user.name 'DevSync Activity Bot'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-      # --- FIX IS ON THIS LINE ---
       - name: 'Create daily empty commit (Owner: 23f2003858@ds.study.iitm.ac.in)'
         run: |
           git commit --allow-empty -m "Bot: Daily activity log commit"
