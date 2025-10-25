@@ -22,6 +22,8 @@ jobs:
         # Fetch full history to allow for rebase
         with:
           fetch-depth: 0 
+          # Explicitly check out the main branch
+          ref: main 
 
       - name: Configure Git User
         run: |
@@ -33,9 +35,11 @@ jobs:
           # 1. Create the empty commit locally
           git commit --allow-empty -m "Bot: Daily activity log commit"
           
-          # 2. Pull remote changes and rebase our local commit on top
-          # This fetches any new commits and places our commit after them
-          git pull --rebase
+          # 2. Fetch the absolute latest changes from the 'main' branch
+          git fetch origin main
           
-          # 3. Now push the rebased commit
-          git push
+          # 3. Rebase our local commit on top of the latest 'main'
+          git rebase origin/main
+          
+          # 4. Push our rebased commit back to the 'main' branch
+          git push origin main
