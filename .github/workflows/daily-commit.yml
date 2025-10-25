@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        # We need to ensure we fetch the full history for pull/push
+        # Fetch full history to allow for rebase
         with:
           fetch-depth: 0 
 
@@ -30,10 +30,12 @@ jobs:
           
       - name: 'Create daily empty commit (Owner: 23f2003858@ds.study.iitm.ac.in)'
         run: |
-          # --- ADD THIS LINE ---
-          # Pull the latest changes from the remote to avoid rejection
-          git pull
-          
-          # Now, create the empty commit and push
+          # 1. Create the empty commit locally
           git commit --allow-empty -m "Bot: Daily activity log commit"
+          
+          # 2. Pull remote changes and rebase our local commit on top
+          # This fetches any new commits and places our commit after them
+          git pull --rebase
+          
+          # 3. Now push the rebased commit
           git push
